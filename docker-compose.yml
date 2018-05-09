@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  dns:
+    build: .
+    ports:
+    - "53:53/udp"
+    - "53:53/tcp"
+    volumes:
+    - "${PWD}/dnsmasq.conf:/etc/dnsmasq.conf"
+    command: ['dnsmasq', '--no-daemon']
+
+  reverse_proxy:
+    image: golang:1.10.2
+    ports:
+    - "8000:8000"
+    extra_hosts:
+      localhost: "${DOCKER_HOST_IP}"
+    environment:
+    - APP_HOST=:8000
+    volumes:
+    - "./cmd/reverse_proxy:/go/src/reverse_proxy"
+    command: ["go", "run", "src/reverse_proxy/main.go"]
+
+  server1:
+    image: golang:1.10.2
+    ports:
+    - "8001:8001"
+    extra_hosts:
+      localhost: "${DOCKER_HOST_IP}"
+    environment:
+    - APP_HOST=:8001
+    volumes:
+    - "./cmd/server:/go/src/server"
+    command: ["go", "run", "src/server/main.go"]
+
+  server2:
+    image: golang:1.10.2
+    ports:
+    - "8002:8002"
+    extra_hosts:
+      localhost: "${DOCKER_HOST_IP}"
+    environment:
+    - APP_HOST=:8002
+    volumes:
+    - "./cmd/server:/go/src/server"
+    command: ["go", "run", "src/server/main.go"]
+
