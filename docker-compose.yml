@@ -2,13 +2,14 @@ version: '3'
 
 services:
   dns:
-    build: .
+    image: golang:1.10.2
     ports:
     - "53:53/udp"
     - "53:53/tcp"
     volumes:
-    - "${PWD}/dnsmasq.conf:/etc/dnsmasq.conf"
-    command: ['dnsmasq', '--no-daemon']
+    - "./cmd/dns:/go/src/dns"
+    - "./vendor:/go/src/vendor"
+    command: ["go", "run", "src/dns/main.go"]
 
   reverse_proxy:
     image: golang:1.10.2
