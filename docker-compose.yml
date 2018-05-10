@@ -6,6 +6,8 @@ services:
     ports:
     - "53:53/udp"
     - "53:53/tcp"
+    extra_hosts:
+      localhost: "${DOCKER_HOST_IP}"
     volumes:
     - "./cmd/dns:/go/src/dns"
     - "./vendor:/go/src/vendor"
@@ -17,6 +19,8 @@ services:
     - "8000:8000"
     extra_hosts:
       localhost: "${DOCKER_HOST_IP}"
+    dns:
+    - "${DOCKER_HOST_IP}"
     environment:
     - APP_HOST=:8000
     volumes:
@@ -29,6 +33,8 @@ services:
     - "8001:8001"
     extra_hosts:
       localhost: "${DOCKER_HOST_IP}"
+    dns:
+    - "${DOCKER_HOST_IP}"
     environment:
     - APP_HOST=:8001
     volumes:
@@ -41,9 +47,10 @@ services:
     - "8002:8002"
     extra_hosts:
       localhost: "${DOCKER_HOST_IP}"
+    dns:
+    - "${DOCKER_HOST_IP}"
     environment:
     - APP_HOST=:8002
     volumes:
     - "./cmd/server:/go/src/server"
     command: ["go", "run", "src/server/main.go"]
-

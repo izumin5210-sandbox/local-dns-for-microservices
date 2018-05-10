@@ -11,6 +11,24 @@ import (
 func main() {
 	mux := dns.NewServeMux()
 
+	var localhost net.IP
+	ips, err := net.LookupIP("localhost")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	for _, ip := range ips {
+		switch ip.String() {
+		case "127.0.0.1", "::1":
+			continue
+		default:
+			localhost = ip
+			break
+		}
+	}
+	if len(localhost) == 0 {
+		localhost = net.IPv4(127, 0, 0, 1)
+	}
+
 	mux.HandleFunc(".", func(w dns.ResponseWriter, req *dns.Msg) {
 		q := req.Question[0]
 		resp := new(dns.Msg)
@@ -24,7 +42,7 @@ func main() {
 					Class:  dns.ClassINET,
 					Ttl:    600,
 				},
-				A: net.IPv4(127, 0, 0, 1),
+				A: localhost,
 			})
 		} else {
 			resp.MsgHdr.Rcode = dns.RcodeNameError

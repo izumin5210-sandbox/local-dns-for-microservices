@@ -18,6 +18,10 @@ pong
 $ curl 'bar.izumin.local/echo?message=Hello!'
 Hello!
 
+# server1 connects with server2
+$ curl 'foo.izumin.local/delegate?url=http://bar.izumin.local/ping'
+pong
+
 $ curl -I google.com
 HTTP/1.1 301 Moved Permanently
 Location: http://www.google.com/
