@@ -1,6 +1,16 @@
 # Local service discovery for microservices development
 ## Run your local
+### Setup for macos users
 
+```
+# port forwarging 80 -> 8000
+$ echo "rdr pass inet proto tcp from any to any port 80 -> 127.0.0.1 port 8000" | sudo /sbin/pfctl -ef -\
+
+# use localhost DNS
+$ sudo mkdir /etc/resolver && sudo echo 'nameserver 127.0.0.1' > /etc/resolver/local
+```
+
+### Start servers
 ```
 # Install dependencies
 $ dep ensure -v -vendor-only
