@@ -49,7 +49,7 @@ func (s *DNSServer) handle(w dns.ResponseWriter, req *dns.Msg) {
 	resp := new(dns.Msg)
 	resp.SetReply(req)
 
-	if q.Qtype == dns.TypeA && q.Qclass == dns.ClassINET && strings.HasSuffix(q.Name, "izumin.local.") {
+	if s.handlable(q) {
 		resp.Answer = append(resp.Answer, &dns.A{
 			Hdr: dns.RR_Header{
 				Name:   q.Name,
@@ -64,6 +64,10 @@ func (s *DNSServer) handle(w dns.ResponseWriter, req *dns.Msg) {
 	}
 
 	w.WriteMsg(resp)
+}
+
+func (s *DNSServer) handlable(q dns.Question) bool {
+	return q.Qtype == dns.TypeA && q.Qclass == dns.ClassINET && s.mapping.CanMap(strings.TrimSuffix(q.Name, "."))
 }
 
 func (s *DNSServer) updateLocalhostIP() {
