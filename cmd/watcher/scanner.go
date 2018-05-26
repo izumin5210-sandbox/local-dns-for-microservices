@@ -3,10 +3,13 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/spf13/afero"
 )
 
 var (
@@ -15,11 +18,13 @@ var (
 
 type Scanner struct {
 	pidByPort *sync.Map
+	fs        afero.Fs
 }
 
 func NewScanner() *Scanner {
 	return &Scanner{
 		pidByPort: new(sync.Map),
+		fs:        afero.NewOsFs(),
 	}
 }
 
@@ -39,7 +44,11 @@ func (s *Scanner) Scan(pid int32, port uint32) error {
 			break
 		}
 	}
-	fmt.Println(cwd)
+	data, err := afero.ReadFile(s.fs, filepath.Join(cwd, "localhost"))
+	if err != nil {
+		return err
+	}
+	fmt.Printf(":%d (pid = %d) => %s\n", port, pid, string(data))
 	return nil
 }
 
