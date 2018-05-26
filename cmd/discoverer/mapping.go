@@ -23,19 +23,15 @@ func NewMapping() Mapping {
 }
 
 type mappingImpl struct {
-	portByHost *sync.Map
-	toAddr     func(port uint32) string
-}
-
-type process struct {
-	pid  int32
-	host string
+	pidByPort *sync.Map
+	hostTable *sync.Map
+	toAddr    func(port uint32) string
 }
 
 func (m *mappingImpl) Lookup(host string) (string, bool) {
-	if v, ok := m.portByHost.Load(host); ok {
-		if proc, ok := v.(process); ok {
-			return proc.host, true
+	if v, ok := m.hostTable.Load(host); ok {
+		if dst, ok := v.(string); ok {
+			return dst, true
 		}
 	}
 	return "", false
@@ -43,20 +39,22 @@ func (m *mappingImpl) Lookup(host string) (string, bool) {
 
 func (m *mappingImpl) Update(port uint32, pid int32, host string) {
 	dst := m.toAddr(port)
-	m.portByHost.Store(host, process{pid: pid, host: dst})
+	m.pidByPort.Store(port, pid)
+	m.hostTable.Store(host, m.toAddr(port))
 	log.Printf("detect new maping: %s -> %s (pid = %d)\n", host, dst, pid)
 }
 
 func (m *mappingImpl) Has(port uint32, pid int32) bool {
-	v, ok := m.portByHost.Load(m.toAddr(port))
+	v, ok := m.pidByPort.Load(port)
 	if ok {
-		if proc, ok := v.(process); ok {
-			return proc.pid == pid
+		if oldPid, ok := v.(int32); ok {
+			return oldPid == pid
 		}
 	}
 	return false
 }
 
 func (m *mappingImpl) Clear() {
-	m.portByHost = new(sync.Map)
+	m.pidByPort = new(sync.Map)
+	m.hostTable = new(sync.Map)
 }
