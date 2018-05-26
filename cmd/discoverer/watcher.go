@@ -54,24 +54,33 @@ func (w *Watcher) Watch(ctx context.Context, interval time.Duration) error {
 }
 
 func (w *Watcher) do() error {
+	log.Println("start scanning ports")
+
 	stats, err := psnet.Connections("tcp")
 	if err != nil {
 		return err
 	}
 
 	wg := new(sync.WaitGroup)
+	sem := make(chan struct{}, 4)
+
 	for _, s := range stats {
+		sem <- struct{}{}
 		wg.Add(1)
-		go w.scan(wg, s.Laddr.Port, s.Pid)
+		go func(s psnet.ConnectionStat) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			w.scan(s.Laddr.Port, s.Pid)
+		}(s)
 	}
+
 	wg.Wait()
+	log.Printf("finish scanning ports (found %d processes)\n", len(stats))
 
 	return nil
 }
 
-func (w *Watcher) scan(wg *sync.WaitGroup, port uint32, pid int32) error {
-	defer wg.Done()
-
+func (w *Watcher) scan(port uint32, pid int32) error {
 	if w.mapping.Has(port, pid) {
 		return nil
 	}
