@@ -42,7 +42,7 @@ func (s *DNSServer) Shutdown(context.Context) error {
 
 func (s *DNSServer) handle(w dns.ResponseWriter, req *dns.Msg) {
 	// log
-	log.Printf("--> %#v\n", req)
+	log.Printf("received %#v\n", req.Question)
 
 	// handle
 	q := req.Question[0]
@@ -62,9 +62,6 @@ func (s *DNSServer) handle(w dns.ResponseWriter, req *dns.Msg) {
 	} else {
 		resp.MsgHdr.Rcode = dns.RcodeNameError
 	}
-
-	// log
-	log.Printf("<-- %#v\n", resp)
 
 	w.WriteMsg(resp)
 }

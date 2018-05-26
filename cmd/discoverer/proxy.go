@@ -40,6 +40,9 @@ func (s *ProxyServer) handle(req *http.Request) {
 	if ok {
 		log.Printf("map %s -> %s\n", req.Host, host)
 		req.URL.Host = host
+	} else {
+		log.Printf("mappings are not found for %s\n", req.Host)
+		req.URL.Host = req.Host
 	}
 	req.URL.Scheme = "http"
 }
