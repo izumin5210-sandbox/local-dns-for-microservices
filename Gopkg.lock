@@ -32,6 +32,15 @@
   version = "v2.18.04"
 
 [[projects]]
+  name = "github.com/spf13/afero"
+  packages = [
+    ".",
+    "mem"
+  ]
+  revision = "63644898a8da0bc22138abf860edaf5277b6102e"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
@@ -61,9 +70,22 @@
   ]
   revision = "7c87d13f8e835d2fb3a70a2912c811ed0c1d241b"
 
+[[projects]]
+  name = "golang.org/x/text"
+  packages = [
+    "internal/gen",
+    "internal/triegen",
+    "internal/ucd",
+    "transform",
+    "unicode/cldr",
+    "unicode/norm"
+  ]
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7b5c3d8ec91f48074be9958b17170c4d7cbb675039aac041d4ab36fe50d40773"
+  inputs-digest = "d90939372900050b4c82bf51d185e30d55f3e9a22ad5ba7de8a61103883b7be4"
   solver-name = "gps-cdcl"
   solver-version = 1
