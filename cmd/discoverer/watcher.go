@@ -81,7 +81,7 @@ func (w *Watcher) do() error {
 }
 
 func (w *Watcher) scan(port uint32, pid int32) error {
-	if w.mapping.Has(port, pid) {
+	if w.mapping.IsChecked(port, pid) {
 		return nil
 	}
 

@@ -9,7 +9,7 @@ import (
 type Mapping interface {
 	Lookup(host string) (targetHost string, ok bool)
 	Update(port uint32, pid int32, host string)
-	Has(port uint32, pid int32) bool
+	IsChecked(port uint32, pid int32) bool
 	CanMap(host string) bool
 	Clear()
 }
@@ -45,7 +45,7 @@ func (m *mappingImpl) Update(port uint32, pid int32, host string) {
 	log.Printf("detect new maping: %s -> %s (pid = %d)\n", host, dst, pid)
 }
 
-func (m *mappingImpl) Has(port uint32, pid int32) bool {
+func (m *mappingImpl) IsChecked(port uint32, pid int32) bool {
 	v, ok := m.pidByPort.Load(port)
 	if ok {
 		if oldPid, ok := v.(int32); ok {
