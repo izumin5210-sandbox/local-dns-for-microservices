@@ -20,7 +20,7 @@ $(foreach src,$(DEP_SRCS),$(eval $(call dep-bin-tmpl,$(src))))
 #  app
 #----------------------------------------------------------------
 .PHONY: all
-all: bin/discoverer bin/server
+all: bin/discoverer bin/http_server
 
 .PHONY: run
 run: all
@@ -29,8 +29,8 @@ run: all
 bin/discoverer: cmd/discoverer/*.go
 	@go build -v -o bin/discoverer cmd/discoverer/*.go
 
-bin/server: cmd/server/*.go
-	@go build -v -o bin/server cmd/server/*.go
+bin/http_server: cmd/http_server/*.go
+	@go build -v -o bin/http_server cmd/http_server/*.go
 
 .PHONY: setup
 setup: dep $(DEP_BINS)
