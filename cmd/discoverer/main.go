@@ -13,6 +13,7 @@ func main() {
 	w := NewWatcher(m)
 	d := NewDNSServer(m)
 	p := NewProxyServer(m)
+	a := NewAPIServer(m)
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt)
@@ -21,6 +22,7 @@ func main() {
 	go w.Watch(ctx, 5*time.Second)
 	go d.Serve(os.Getenv("DNS_ADDR"))
 	go p.Serve(os.Getenv("PROXY_ADDR"))
+	go a.Serve(os.Getenv("API_ADDR"))
 
 	<-sigCh
 
