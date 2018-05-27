@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"regexp"
 	"strconv"
 
@@ -70,10 +73,52 @@ func (s *APIServer) createHandler() http.Handler {
 	e.Use(middleware.Recover())
 
 	e.Any("/ping", s.handlePing)
+	e.PATCH("/containers/:containerID/mappings", s.handleAddMappings)
+
 	return e
 }
 
 func (s *APIServer) handlePing(c echo.Context) error {
 	c.String(http.StatusOK, "pong")
+	return nil
+}
+
+func (s *APIServer) handleAddMappings(c echo.Context) error {
+	var req struct {
+		Mappings []struct {
+			Port     uint32 `json:"port" validate:"required"`
+			Pid      int32  `json:"pid" validate:"required"`
+			Hostname string `json:"hostname" validate:"required"`
+		} `json:"mappings" validate:"required"`
+	}
+
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	cID := c.Param("containerID")
+	out, err := exec.Command("docker", "inspect", "--format={{json .NetworkSettings.Ports}}", cID).Output()
+	if err != nil {
+		return err
+	}
+
+	networkSettings := map[string][]struct{ HostPort string }{}
+	err = json.Unmarshal(out, &networkSettings)
+	if err != nil {
+		return err
+	}
+
+	for _, m := range req.Mappings {
+		if list, ok := networkSettings[fmt.Sprintf("%d/tcp", m.Port)]; ok {
+			for _, ns := range list {
+				hostPort, err := strconv.Atoi(ns.HostPort)
+				if err != nil {
+					return err
+				}
+				s.mapping.Update(uint32(hostPort), m.Pid, m.Hostname)
+			}
+		}
+	}
+
 	return nil
 }
