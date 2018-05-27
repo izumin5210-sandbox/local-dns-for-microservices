@@ -10,7 +10,10 @@ $ sudo mkdir /etc/resolver && sudo echo 'nameserver 127.0.0.1' > /etc/resolver/l
 ### Start servers
 ```
 # Install dependencies
-$ makee setup
+$ make setup
+
+# Build binaries
+$ make
 
 # Start discoverer and web servers
 $ sudo make run
@@ -19,14 +22,14 @@ $ sudo make run
 ### Do requests
 
 ```
-$ curl foo.izumin.local/ping
+$ curl web1.services.local/ping
 pong
 
-$ curl 'bar.izumin.local/echo?message=Hello!'
+$ curl 'web2.services.local/echo?message=Hello!'
 Hello!
 
 # server1 connects with server2
-$ curl 'foo.izumin.local/delegate?url=http://bar.izumin.local/ping'
+$ curl 'web1.services.local/delegate?url=http://web3.services.local/ping'
 pong
 
 $ curl -I google.com
